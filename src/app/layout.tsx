@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AppBackground from "@/components/AppBackground";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,5 +8,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <body>
+        <AppBackground />
+        {children}
+      </body>
+    </html>
+  );
 }

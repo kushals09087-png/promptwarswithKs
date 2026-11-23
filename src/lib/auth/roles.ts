@@ -259,3 +259,59 @@ export function roleToRoutePath(role: RoleKey): string {
     case "management": return "/management";
   }
 }
+
+export interface RoleAccent {
+  hex: string;
+  name: string;
+  rgb: string;
+  label: string;
+}
+
+export const ROLE_ACCENTS: Record<RoleKey, RoleAccent> = {
+  student: {
+    hex: "#6366F1",
+    name: "indigo",
+    rgb: "99, 102, 241",
+    label: "Indigo (Student)"
+  },
+  faculty: {
+    hex: "#8B5CF6",
+    name: "violet",
+    rgb: "139, 92, 246",
+    label: "Violet (Faculty / Guide)"
+  },
+  technician: {
+    hex: "#F59E0B",
+    name: "amber",
+    rgb: "245, 158, 11",
+    label: "Amber (Lab Technician)"
+  },
+  lab_admin: {
+    hex: "#14B8A6",
+    name: "teal",
+    rgb: "20, 184, 166",
+    label: "Teal (Lab Administrator)"
+  },
+  admin: {
+    hex: "#14B8A6",
+    name: "teal",
+    rgb: "20, 184, 166",
+    label: "Teal (Lab Administrator)"
+  },
+  hod: {
+    hex: "#3B82F6",
+    name: "blue",
+    rgb: "59, 130, 246",
+    label: "Blue (Department Head)"
+  },
+  management: {
+    hex: "#F43F5E",
+    name: "rose",
+    rgb: "244, 63, 94",
+    label: "Rose (College Management)"
+  }
+};
+
+export function getRoleAccent(role: RoleKey): RoleAccent {
+  return ROLE_ACCENTS[role] || ROLE_ACCENTS.student;
+}

@@ -4,7 +4,10 @@ import {
   PERSONAS_BY_ID,
   PersonaIdList,
   PersonaSchema,
-  RoleKeySchema
+  RoleKeySchema,
+  ROLE_ACCENTS,
+  getRoleAccent,
+  RoleKey
 } from "@/lib/auth/roles";
 import {
   createDemoSession,
@@ -18,6 +21,7 @@ import {
   clearAllUnsavedForms,
   getUnsavedFormsList
 } from "@/lib/hooks/useUnsavedChanges";
+import { getInitialNotifications } from "@/components/MultiStakeholderApp";
 
 describe("Demo Personas & Role Schemas", () => {
   it("defines exactly 6 canonical stakeholder personas", () => {
@@ -184,5 +188,75 @@ describe("Feature Flag DEMO_MODE", () => {
     process.env.DEMO_MODE = "true";
     expect(isDemoModeEnabled()).toBe(true);
     process.env.DEMO_MODE = original;
+  });
+});
+
+describe("Role-Aware Living Lab Accent Tokens", () => {
+  const allRoles: RoleKey[] = [
+    "student",
+    "faculty",
+    "technician",
+    "lab_admin",
+    "admin",
+    "hod",
+    "management"
+  ];
+
+  it("maps every role in RoleKeySchema to a valid --role-accent design token", () => {
+    for (const role of allRoles) {
+      const accent = getRoleAccent(role);
+      expect(accent).toBeDefined();
+      expect(accent.hex).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(accent.rgb.split(",")).toHaveLength(3);
+      expect(accent.name).toBeTruthy();
+      expect(accent.label).toBeTruthy();
+    }
+  });
+
+  it("assigns the exact specified stakeholder colors", () => {
+    expect(ROLE_ACCENTS.student.hex.toUpperCase()).toBe("#6366F1"); // Indigo
+    expect(ROLE_ACCENTS.faculty.hex.toUpperCase()).toBe("#8B5CF6"); // Violet
+    expect(ROLE_ACCENTS.technician.hex.toUpperCase()).toBe("#F59E0B"); // Amber
+    expect(ROLE_ACCENTS.lab_admin.hex.toUpperCase()).toBe("#14B8A6"); // Teal
+    expect(ROLE_ACCENTS.admin.hex.toUpperCase()).toBe("#14B8A6"); // Teal alias
+    expect(ROLE_ACCENTS.hod.hex.toUpperCase()).toBe("#3B82F6"); // Blue
+    expect(ROLE_ACCENTS.management.hex.toUpperCase()).toBe("#F43F5E"); // Rose
+  });
+});
+
+describe("Stakeholder Notification System", () => {
+  const allRoles: RoleKey[] = [
+    "student",
+    "faculty",
+    "technician",
+    "lab_admin",
+    "admin",
+    "hod",
+    "management"
+  ];
+
+  it("seeds authentic, non-empty notifications for every stakeholder role", () => {
+    for (const role of allRoles) {
+      const notifs = getInitialNotifications(role);
+      expect(notifs.length).toBeGreaterThanOrEqual(3);
+      for (const n of notifs) {
+        expect(n.id).toBeTruthy();
+        expect(n.title).toBeTruthy();
+        expect(n.message).toBeTruthy();
+        expect(n.timestamp).toBeTruthy();
+        expect(["booking", "approval", "maintenance", "system", "inventory"]).toContain(n.category);
+      }
+    }
+  });
+
+  it("contains role-specific action labels for actionable workflows", () => {
+    const studentNotifs = getInitialNotifications("student");
+    expect(studentNotifs.some((n) => n.actionLabel === "View in My Bookings")).toBe(true);
+
+    const facultyNotifs = getInitialNotifications("faculty");
+    expect(facultyNotifs.some((n) => n.actionLabel === "Review Request")).toBe(true);
+
+    const techNotifs = getInitialNotifications("technician");
+    expect(techNotifs.some((n) => n.actionLabel === "Open Handover")).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   Activity, ArrowRight, Bell, CalendarDays, Check, CheckCircle2,
   Clock3, Cpu, Gauge, LayoutDashboard, Lightbulb,
@@ -15,7 +15,8 @@ import {
   RoleKey,
   DEMO_PERSONAS,
   SIX_PERSONAS,
-  UserPersona
+  UserPersona,
+  getRoleAccent
 } from "@/lib/auth/roles";
 import {
   useUnsavedChanges,
@@ -98,6 +99,232 @@ export interface MaintenanceTicket {
   severity: "Routine" | "High" | "Critical";
   dateLogged: string;
   status: "Under Review" | "In Progress" | "Resolved";
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: string;
+  category: "booking" | "approval" | "maintenance" | "system" | "inventory";
+  unread: boolean;
+  priority?: "high" | "normal";
+  actionLabel?: string;
+  targetTab?: string;
+}
+
+export function getInitialNotifications(role: RoleKey): NotificationItem[] {
+  switch (role) {
+    case "student":
+      return [
+        {
+          id: "notif-stu-1",
+          title: "Booking Request Approved",
+          message: "Your request BK-2026-101 for Digital Oscilloscope 100MHz was approved by Dr. Sarah Jenkins.",
+          timestamp: "10m ago",
+          category: "booking",
+          unread: true,
+          priority: "high",
+          actionLabel: "View in My Bookings",
+          targetTab: "My Bookings"
+        },
+        {
+          id: "notif-stu-2",
+          title: "Upcoming Slot Reminder",
+          message: "Hardware verification session starts tomorrow at 10:00 AM in Block A · Lab 204.",
+          timestamp: "1h ago",
+          category: "system",
+          unread: true,
+          priority: "normal",
+          actionLabel: "Check Catalogue",
+          targetTab: "Equipment Catalogue"
+        },
+        {
+          id: "notif-stu-3",
+          title: "AI Equipment Recommendation",
+          message: "New matched hardware: NVIDIA Jetson Orin AGX 64GB available for IoT & Robotics projects.",
+          timestamp: "3h ago",
+          category: "inventory",
+          unread: false,
+          priority: "normal",
+          actionLabel: "Explore AI Recs",
+          targetTab: "AI Recommendations"
+        }
+      ];
+    case "faculty":
+      return [
+        {
+          id: "notif-fac-1",
+          title: "Endorsement Request Pending",
+          message: "Alex Kumar submitted booking request BK-2026-101 for Digital Oscilloscope 100MHz (IoT Agriculture).",
+          timestamp: "Just now",
+          category: "approval",
+          unread: true,
+          priority: "high",
+          actionLabel: "Review Request",
+          targetTab: "Student Requests"
+        },
+        {
+          id: "notif-fac-2",
+          title: "Mentee Milestone Updated",
+          message: "Priya Sharma updated project milestone progress to 65% on 'Autonomous Rover Array'.",
+          timestamp: "2h ago",
+          category: "system",
+          unread: true,
+          priority: "normal",
+          actionLabel: "View Project",
+          targetTab: "Mentee Projects"
+        },
+        {
+          id: "notif-fac-3",
+          title: "Laboratory Safety Clearance",
+          message: "All Block A signal analysis instruments cleared the bi-weekly safety & calibration audit.",
+          timestamp: "1d ago",
+          category: "system",
+          unread: false,
+          priority: "normal"
+        }
+      ];
+    case "technician":
+      return [
+        {
+          id: "notif-tech-1",
+          title: "Equipment Handover Scheduled",
+          message: "Alex Kumar is scheduled to collect Digital Oscilloscope 100MHz at 10:00 AM in Lab 204.",
+          timestamp: "Just now",
+          category: "booking",
+          unread: true,
+          priority: "high",
+          actionLabel: "Open Handover",
+          targetTab: "Handover & Returns"
+        },
+        {
+          id: "notif-tech-2",
+          title: "High Severity Maintenance Logged",
+          message: "MT-101: 3D Printer Nozzle thermal runaway reported in Block C · Mechanical Fab Lab.",
+          timestamp: "1h ago",
+          category: "maintenance",
+          unread: true,
+          priority: "high",
+          actionLabel: "View Ticket",
+          targetTab: "Maintenance Tickets"
+        },
+        {
+          id: "notif-tech-3",
+          title: "Hardware Return Completed",
+          message: "Vector Network Analyzer returned in Good condition by Vikram Patel. Restored to inventory.",
+          timestamp: "4h ago",
+          category: "inventory",
+          unread: false,
+          priority: "normal"
+        }
+      ];
+    case "lab_admin":
+    case "admin":
+      return [
+        {
+          id: "notif-adm-1",
+          title: "Allocation Queue Clearance Required",
+          message: "3 verified student bookings awaiting central quota validation and administrative slot sign-off.",
+          timestamp: "Just now",
+          category: "approval",
+          unread: true,
+          priority: "high",
+          actionLabel: "Open Queue",
+          targetTab: "Allocation Queue"
+        },
+        {
+          id: "notif-adm-2",
+          title: "Conflict Matrix Verified",
+          message: "Zero schedule overlaps detected across Block A & Block C labs for the upcoming academic week.",
+          timestamp: "2h ago",
+          category: "system",
+          unread: true,
+          priority: "normal",
+          actionLabel: "View Matrix",
+          targetTab: "Schedule & Conflict Matrix"
+        },
+        {
+          id: "notif-adm-3",
+          title: "Institutional Quota Benchmark",
+          message: "Bi-weekly department usage quota reached 76.4% capacity. Cross-sharing functioning smoothly.",
+          timestamp: "1d ago",
+          category: "inventory",
+          unread: false,
+          priority: "normal"
+        }
+      ];
+    case "hod":
+      return [
+        {
+          id: "notif-hod-1",
+          title: "Special High-Priority Allocation",
+          message: "Special allocation clearance requested for High-Performance GPU Cluster ($8,500 value).",
+          timestamp: "Just now",
+          category: "approval",
+          unread: true,
+          priority: "high",
+          actionLabel: "Review Approval",
+          targetTab: "Special Approvals"
+        },
+        {
+          id: "notif-hod-2",
+          title: "Department Utilization Peak",
+          message: "CSE laboratory equipment utilization peaked at 84.6% this week (+12% inter-departmental).",
+          timestamp: "3h ago",
+          category: "system",
+          unread: true,
+          priority: "normal",
+          actionLabel: "View Analytics",
+          targetTab: "Utilization & Bottlenecks"
+        },
+        {
+          id: "notif-hod-3",
+          title: "Procurement Audit Report",
+          message: "Strategic equipment audit report for Q4 2026 has been generated and ready for dean review.",
+          timestamp: "1d ago",
+          category: "inventory",
+          unread: false,
+          priority: "normal"
+        }
+      ];
+    case "management":
+      return [
+        {
+          id: "notif-mgmt-1",
+          title: "Resource Sharing ROI Milestone",
+          message: "Inter-department equipment sharing has saved $142,500 in avoided duplicate procurement.",
+          timestamp: "Just now",
+          category: "system",
+          unread: true,
+          priority: "high",
+          actionLabel: "View ROI Telemetry",
+          targetTab: "Resource Sharing ROI"
+        },
+        {
+          id: "notif-mgmt-2",
+          title: "Campus Utilization Benchmark",
+          message: "Multi-laboratory sharing rate improved by 22% this term across CS, ECE, and Mechanical blocks.",
+          timestamp: "5h ago",
+          category: "system",
+          unread: true,
+          priority: "normal",
+          actionLabel: "View Campus Metrics",
+          targetTab: "Campus Resource Metrics"
+        },
+        {
+          id: "notif-mgmt-3",
+          title: "Governance & Safety Audit",
+          message: "All 248 laboratory research units verified compliant with ISO/IEC academic safety standards.",
+          timestamp: "1d ago",
+          category: "inventory",
+          unread: false,
+          priority: "normal"
+        }
+      ];
+    default:
+      return [];
+  }
 }
 
 // --- INITIAL DATA ---
@@ -608,6 +835,75 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
     }, 3500);
   };
 
+  // Role Accent synchronization with Living Lab atmosphere & theme
+  useEffect(() => {
+    const accent = getRoleAccent(currentRole);
+    document.documentElement.style.setProperty("--role-accent", accent.hex);
+    document.documentElement.style.setProperty("--role-accent-rgb", accent.rgb);
+    document.documentElement.style.setProperty("--role-accent-glow", `rgba(${accent.rgb}, ${theme === "dark" ? "0.35" : "0.28"})`);
+    document.documentElement.style.setProperty("--role-accent-light", `rgba(${accent.rgb}, 0.16)`);
+    document.documentElement.setAttribute("data-role", currentRole);
+  }, [currentRole, theme]);
+
+  // Notifications State & Handlers
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() => getInitialNotifications(currentRole));
+  const [showNotificationPanel, setShowNotificationPanel] = useState<boolean>(false);
+  const [notifFilter, setNotifFilter] = useState<"all" | "unread" | "high">("all");
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Close notifications on click outside or Escape
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotificationPanel(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showNotificationPanel) {
+        setShowNotificationPanel(false);
+      }
+    };
+    if (showNotificationPanel) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showNotificationPanel]);
+
+  const unreadCount = useMemo(() => notifications.filter((n) => n.unread).length, [notifications]);
+
+  const filteredNotifications = useMemo(() => {
+    if (notifFilter === "unread") return notifications.filter((n) => n.unread);
+    if (notifFilter === "high") return notifications.filter((n) => n.priority === "high");
+    return notifications;
+  }, [notifications, notifFilter]);
+
+  const handleMarkAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    showToast("All updates marked as read.");
+  };
+
+  const handleMarkItemRead = (id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
+  };
+
+  const handleClearAllNotifs = () => {
+    setNotifications([]);
+    showToast("Cleared notification list.");
+  };
+
+  const handleNotifAction = (item: NotificationItem) => {
+    handleMarkItemRead(item.id);
+    setShowNotificationPanel(false);
+    if (item.targetTab) {
+      setActiveTab(item.targetTab);
+      showToast(`Navigated to ${item.targetTab}`);
+    }
+  };
+
   // Register active forms into global dirty tracker for unsaved changes protection
   useFormDirtyState(
     "booking-form",
@@ -648,6 +944,7 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
     setHasInitializedRole(true);
     setShowRoleModal(false);
     resetUnsaved();
+    setNotifications(getInitialNotifications(mappedRole));
     setActiveTab("Overview");
     showToast(`Welcome, ${personaObj.name}! Activated ${personaObj.badge} stakeholder access.`);
 
@@ -2035,13 +2332,14 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
 
   return (
     <main className="app-shell">
-      {/* --- 2-3 SECONDS INTRO SPLASH SCREEN --- */}
+      {/* --- ~3 SECONDS INTRO SPLASH SCREEN --- */}
       {showIntro && (
         <div
           className={`intro-splash ${introFading ? "fading-out" : ""}`}
           role="status"
           aria-label="Loading LabLink Nexus"
         >
+          <div className="living-lab-grid" style={{ position: "absolute", inset: 0, opacity: 0.55 }} />
           <div className="intro-bg-glow" />
           <div className="intro-logo-wrap">
             <img src="/logo.png" alt="LabLink Nexus Logo" className="intro-logo-img" />
@@ -2245,14 +2543,165 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            <button
-              className="icon-button"
-              aria-label="Notifications"
-              onClick={() => showToast(`Logged in as ${persona.name}. You have 3 active updates.`)}
-            >
-              <Bell size={18} />
-              <span className="notification-badge" />
-            </button>
+            {/* Interactive Notification Center */}
+            <div className="notification-trigger-wrap" ref={notifRef}>
+              <button
+                className={`icon-button ${showNotificationPanel ? "active" : ""}`}
+                aria-label={`Notifications and updates (${unreadCount} unread)`}
+                aria-expanded={showNotificationPanel}
+                onClick={() => setShowNotificationPanel((prev) => !prev)}
+                title="Notifications & Updates"
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="notification-count-badge" aria-label={`${unreadCount} unread notifications`}>
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showNotificationPanel && (
+                <div
+                  className="notification-flyout"
+                  role="region"
+                  aria-label="Notification Center"
+                >
+                  <div className="notif-header">
+                    <div className="notif-header-title">
+                      <Bell size={16} color="var(--role-accent)" />
+                      <span>Notifications &amp; Updates</span>
+                      {unreadCount > 0 && (
+                        <span className="notif-unread-pill">{unreadCount} new</span>
+                      )}
+                    </div>
+                    <div className="notif-header-actions">
+                      {unreadCount > 0 && (
+                        <button
+                          className="text-button"
+                          onClick={handleMarkAllRead}
+                          style={{ fontSize: "11px", fontWeight: 700, color: "var(--role-accent)", cursor: "pointer", background: "none", border: "none" }}
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                      <button
+                        className="icon-button"
+                        style={{ width: "24px", height: "24px" }}
+                        onClick={() => setShowNotificationPanel(false)}
+                        aria-label="Close notifications"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="notif-filter-tabs">
+                    <button
+                      className={`notif-filter-tab ${notifFilter === "all" ? "active" : ""}`}
+                      onClick={() => setNotifFilter("all")}
+                    >
+                      All ({notifications.length})
+                    </button>
+                    <button
+                      className={`notif-filter-tab ${notifFilter === "unread" ? "active" : ""}`}
+                      onClick={() => setNotifFilter("unread")}
+                    >
+                      Unread ({unreadCount})
+                    </button>
+                    <button
+                      className={`notif-filter-tab ${notifFilter === "high" ? "active" : ""}`}
+                      onClick={() => setNotifFilter("high")}
+                    >
+                      High Priority ({notifications.filter((n) => n.priority === "high").length})
+                    </button>
+                  </div>
+
+                  <div className="notif-list">
+                    {filteredNotifications.length === 0 ? (
+                      <div style={{ padding: "32px 20px", textAlign: "center", color: "var(--text-muted)" }}>
+                        <CheckCircle2 size={24} style={{ margin: "0 auto 8px", opacity: 0.5 }} />
+                        <div style={{ fontSize: "13px", fontWeight: 700 }}>All Caught Up!</div>
+                        <small style={{ fontSize: "11px" }}>No active updates for this filter.</small>
+                      </div>
+                    ) : (
+                      filteredNotifications.map((item) => (
+                        <div
+                          key={item.id}
+                          className={`notif-item ${item.unread ? "unread" : ""}`}
+                          onClick={() => handleMarkItemRead(item.id)}
+                        >
+                          <div
+                            className="notif-icon-box"
+                            style={{
+                              background:
+                                item.category === "approval"
+                                  ? "rgba(139, 92, 246, 0.15)"
+                                  : item.category === "maintenance"
+                                  ? "rgba(245, 158, 11, 0.15)"
+                                  : item.category === "booking"
+                                  ? "rgba(99, 102, 241, 0.15)"
+                                  : "rgba(20, 184, 166, 0.15)",
+                              color:
+                                item.category === "approval"
+                                  ? "#a78bfa"
+                                  : item.category === "maintenance"
+                                  ? "#fbbf24"
+                                  : item.category === "booking"
+                                  ? "#818cf8"
+                                  : "#2dd4bf"
+                            }}
+                          >
+                            {item.category === "approval" ? (
+                              <CheckSquare size={16} />
+                            ) : item.category === "maintenance" ? (
+                              <Wrench size={16} />
+                            ) : item.category === "booking" ? (
+                              <CalendarDays size={16} />
+                            ) : (
+                              <Sparkles size={16} />
+                            )}
+                          </div>
+
+                          <div className="notif-content">
+                            <div className="notif-title-row">
+                              <span className="notif-title">{item.title}</span>
+                              <span className="notif-time">{item.timestamp}</span>
+                            </div>
+                            <p className="notif-desc">{item.message}</p>
+                            {item.actionLabel && (
+                              <button
+                                className="notif-action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleNotifAction(item);
+                                }}
+                              >
+                                {item.actionLabel} <ArrowRight size={11} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="notif-footer">
+                    <span style={{ color: "var(--text-muted)" }}>
+                      Role: <strong>{persona.badge}</strong>
+                    </span>
+                    {notifications.length > 0 && (
+                      <button
+                        className="text-button"
+                        onClick={handleClearAllNotifs}
+                        style={{ fontSize: "11px", color: "var(--text-muted)", cursor: "pointer", background: "none", border: "none" }}
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="avatar" style={{ width: "34px", height: "34px", fontSize: "11px" }}>
               {persona.avatar}
