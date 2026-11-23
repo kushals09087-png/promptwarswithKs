@@ -2350,7 +2350,7 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
             <div className="intro-progress-fill" />
           </div>
           <div className="intro-status-text">Initializing university research laboratories...</div>
-          <button className="intro-skip-btn" onClick={handleSkipIntro} aria-label="Skip splash screen">
+          <button className="intro-skip-btn" onClick={handleSkipIntro} aria-label="Skip Intro">
             Skip Intro →
           </button>
         </div>
@@ -2515,7 +2515,6 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
                 color: "inherit"
               }}
               title="Click to switch stakeholder persona"
-              aria-label={`Current stakeholder role: ${persona.badge}. Click to switch.`}
             >
               <span className="status-beacon" />
               <ArrowLeftRight size={13} style={{ marginRight: 4, color: "var(--primary)" }} />
@@ -2553,12 +2552,12 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
                 title="Notifications & Updates"
               >
                 <Bell size={18} />
-                {unreadCount > 0 && (
-                  <span className="notification-count-badge" aria-label={`${unreadCount} unread notifications`}>
-                    {unreadCount}
-                  </span>
-                )}
               </button>
+              {unreadCount > 0 && (
+                <span className="notification-count-badge" aria-hidden="true" style={{ pointerEvents: "none" }}>
+                  {unreadCount}
+                </span>
+              )}
 
               {showNotificationPanel && (
                 <div
