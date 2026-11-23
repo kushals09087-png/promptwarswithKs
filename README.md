@@ -4,6 +4,8 @@
 
 A GenAI-powered campus laboratory resource-sharing platform. Students discover equipment, development kits, and workstations across departments, request slots through academic projects, and faculty approve requests. An explainable allocation engine resolves scheduling conflicts fairly, and Google Gemini assists with requirements understanding, plain-language explanations, and recommendation matching.
 
+- **Repository:** `https://github.com/kushals09087-png/promptwarswithKs.git`
+
 ---
 
 ## Table of Contents
@@ -190,10 +192,10 @@ Open `http://localhost:3000` in your browser. Choose any persona to explore the 
 |---|---|---|---|
 | **Alex Kumar** | Student | Robotics & Automation | alex.kumar@campus.edu |
 | **Dr. Sarah Jenkins** | Faculty / Guide | Robotics & Automation | sarah.jenkins@campus.edu |
-| **Rajesh Sharma** | Lab Technician | Electronics & VLSI | rajesh.sharma@campus.edu |
-| **Dr. Aris Thorne** | Lab Administrator | Artificial Intelligence | aris.thorne@campus.edu |
-| **Prof. David Kim** | Department Head (HOD) | Computer Science & Eng | david.kim@campus.edu |
-| **Dr. Eleanor Vance** | College Management | Institutional Affairs | eleanor.vance@campus.edu |
+| **Rajesh Verma** | Lab Technician | Electronics & VLSI | rajesh.verma@campus.edu |
+| **Prof. Marcus Vance** | Lab Administrator | Artificial Intelligence | marcus.vance@campus.edu |
+| **Dr. Aris Thorne** | Department Head (HOD) | Computer Science & Eng | aris.thorne@campus.edu |
+| **Dr. Elena Rostova** | College Management | Institutional Affairs | elena.rostova@campus.edu |
 
 ---
 
