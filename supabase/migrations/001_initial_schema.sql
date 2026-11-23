@@ -91,14 +91,31 @@ create table public.allocation_history (
   created_at timestamptz not null default now()
 );
 
--- Performance Indexes
-create index idx_equipment_department on public.equipment(department_id);
-create index idx_equipment_status on public.equipment(status);
-create index idx_projects_student on public.projects(student_id);
-create index idx_bookings_student_created on public.bookings(student_id, created_at desc);
-create index idx_bookings_equipment_time on public.bookings(equipment_id, start_time, end_time);
-create index idx_bookings_pending on public.bookings(created_at desc) where status = 'pending';
-create index idx_allocation_student on public.allocation_history(student_id, created_at desc);
+-- Performance & High-Efficiency Indexes
+create index if not exists idx_equipment_department on public.equipment(department_id);
+create index if not exists idx_equipment_status on public.equipment(status);
+create index if not exists idx_equipment_search on public.equipment using gin(to_tsvector('english', name || ' ' || coalesce(description, '')));
+create index if not exists idx_projects_student on public.projects(student_id);
+create index if not exists idx_bookings_student_created on public.bookings(student_id, created_at desc);
+create index if not exists idx_bookings_equipment_time on public.bookings(equipment_id, start_time, end_time);
+create index if not exists idx_bookings_status on public.bookings(status);
+create index if not exists idx_bookings_pending on public.bookings(created_at desc) where status = 'pending';
+create index if not exists idx_allocation_student on public.allocation_history(student_id, created_at desc);
+create index if not exists idx_allocation_booking on public.allocation_history(booking_id);
+
+-- 8. Stakeholder Notifications Table
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null,
+  message text not null,
+  category text not null default 'booking',
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists idx_notifications_user_read on public.notifications(user_id, read_at);
+alter table public.notifications enable row level security;
+create policy "Users read own notifications" on public.notifications for select to authenticated using (user_id = auth.uid());
 
 -- Enable Row Level Security on All Tables
 alter table public.departments enable row level security;

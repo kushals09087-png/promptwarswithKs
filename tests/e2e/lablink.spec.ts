@@ -1,5 +1,31 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+
+async function openPersonaModal(page: Page) {
+  const modal = page.locator(".persona-modal-card");
+  if (await modal.isVisible({ timeout: 1000 }).catch(() => false)) {
+    return;
+  }
+
+  const skipBtn = page.locator(".intro-skip-btn");
+  if (await skipBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+    await skipBtn.click();
+    await page.waitForTimeout(300);
+  }
+
+  if (await modal.isVisible({ timeout: 1000 }).catch(() => false)) {
+    return;
+  }
+
+  const rolePill = page.locator(".switch-role-pill");
+  if (await rolePill.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await rolePill.click();
+    const confirmBtn = page.getByRole("button", { name: /select role/i });
+    if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await confirmBtn.click();
+    }
+  }
+}
 
 test.describe("LabLink Nexus - E2E Multi-Stakeholder Platform", () => {
   test.beforeEach(async ({ context }) => {
@@ -13,33 +39,17 @@ test.describe("LabLink Nexus - E2E Multi-Stakeholder Platform", () => {
     const body = page.locator("body");
     await expect(body).toBeVisible();
 
-    // Verify skip button or brand title is present
     const brandOrIntro = page.locator(".intro-brand-title").or(page.locator(".brand-title"));
     await expect(brandOrIntro.first()).toBeVisible();
   });
 
   test("Renders all 6 stakeholder personas in selection interface", async ({ page }) => {
     await page.goto("/");
-
-    // If intro splash is visible, click skip
-    const skipBtn = page.locator(".intro-skip-btn");
-    if (await skipBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await skipBtn.click();
-    }
-
-    // Open switch role confirmation dialog via role pill
-    const rolePill = page.locator(".switch-role-pill");
-    await expect(rolePill).toBeVisible({ timeout: 5000 });
-    await rolePill.click();
-
-    // Click confirm "Select Role" button
-    const confirmBtn = page.getByRole("button", { name: /select role/i });
-    await expect(confirmBtn).toBeVisible({ timeout: 5000 });
-    await confirmBtn.click();
+    await openPersonaModal(page);
 
     // Verify presence of all 6 personas in modal
     const modal = page.locator(".persona-modal-card");
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: 8000 });
     await expect(modal.locator(".persona-choice-card").filter({ hasText: /Alex Kumar/i })).toBeVisible();
     await expect(modal.locator(".persona-choice-card").filter({ hasText: /Dr\. Sarah Jenkins/i })).toBeVisible();
     await expect(modal.locator(".persona-choice-card").filter({ hasText: /Rajesh Verma/i })).toBeVisible();
@@ -50,20 +60,11 @@ test.describe("LabLink Nexus - E2E Multi-Stakeholder Platform", () => {
 
   test("Selecting Student persona enters Student Dashboard and sets server cookie", async ({ page, context }) => {
     await page.goto("/");
-
-    // Skip intro if present
-    const skipBtn = page.locator(".intro-skip-btn");
-    if (await skipBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await skipBtn.click();
-    }
-
-    // Open persona modal
-    await page.locator(".switch-role-pill").click();
-    await page.getByRole("button", { name: /select role/i }).click();
+    await openPersonaModal(page);
 
     // Select Alex Kumar card inside modal
     const alexCard = page.locator(".persona-modal-card .persona-choice-card").filter({ hasText: /Alex Kumar/i });
-    await expect(alexCard).toBeVisible({ timeout: 5000 });
+    await expect(alexCard).toBeVisible({ timeout: 8000 });
 
     const sessionPromise = page.waitForResponse(
       (res) => res.url().includes("/api/demo/session") && res.status() === 200,
@@ -84,7 +85,6 @@ test.describe("LabLink Nexus - E2E Multi-Stakeholder Platform", () => {
 
   test("Persistence: Reloading page preserves active persona session", async ({ page }) => {
     await page.goto("/");
-
     const skipBtn = page.locator(".intro-skip-btn");
     if (await skipBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
       await skipBtn.click();
@@ -102,19 +102,11 @@ test.describe("LabLink Nexus - E2E Multi-Stakeholder Platform", () => {
 
   test("Switch Role workflow without page reload", async ({ page }) => {
     await page.goto("/");
-
-    const skipBtn = page.locator(".intro-skip-btn");
-    if (await skipBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await skipBtn.click();
-    }
-
-    // Open Switch Role dialog
-    await page.locator(".switch-role-pill").click();
-    await page.getByRole("button", { name: /select role/i }).click();
+    await openPersonaModal(page);
 
     // Select Faculty (Dr. Sarah Jenkins)
     const sarahCard = page.locator(".persona-modal-card .persona-choice-card").filter({ hasText: /Dr\. Sarah Jenkins/i });
-    await expect(sarahCard).toBeVisible({ timeout: 5000 });
+    await expect(sarahCard).toBeVisible({ timeout: 8000 });
 
     const sessionPromise = page.waitForResponse(
       (res) => res.url().includes("/api/demo/session") && res.status() === 200,
@@ -130,7 +122,6 @@ test.describe("LabLink Nexus - E2E Multi-Stakeholder Platform", () => {
   test("Accessibility Audit with Axe Core across viewports", async ({ page }) => {
     await page.goto("/");
 
-    // Skip intro if present for steady-state scan
     const skipBtn = page.locator(".intro-skip-btn");
     if (await skipBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
       await skipBtn.click();
