@@ -1,5 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+/* Accessible Skip Link */
+.skip-to-content {
+  position: absolute;
+  top: -9999px;
+  left: 16px;
+  background: var(--primary, #6366f1);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 999999;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.skip-to-content:focus {
+  top: 16px;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
 :root {
   --bg-app: #f8fafc;
   --bg-sidebar: #ffffff;
@@ -2609,6 +2631,28 @@ button {
    ======================================================== */
 
 /* Apple-style typography enhancements */
+/* Accessible Skip Link */
+.skip-to-content {
+  position: absolute;
+  top: -9999px;
+  left: 16px;
+  background: var(--primary, #6366f1);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 999999;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.skip-to-content:focus {
+  top: 16px;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
 :root {
   --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
   --apple-blue: #0071e3;

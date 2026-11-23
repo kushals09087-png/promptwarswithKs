@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   Activity, ArrowRight, Bell, CalendarDays, Check, CheckCircle2,
   Clock3, Cpu, Gauge, LayoutDashboard, Lightbulb,
@@ -2332,6 +2333,11 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
 
   return (
     <main className="app-shell">
+      {/* WCAG 2.4.1 Accessible Skip Link */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+
       {/* --- ~3 SECONDS INTRO SPLASH SCREEN --- */}
       {showIntro && (
         <div
@@ -2342,7 +2348,7 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
           <div className="living-lab-grid" style={{ position: "absolute", inset: 0, opacity: 0.55 }} />
           <div className="intro-bg-glow" />
           <div className="intro-logo-wrap">
-            <img src="/logo.png" alt="LabLink Nexus Logo" className="intro-logo-img" />
+            <Image src="/logo.png" alt="LabLink Nexus Logo" width={120} height={120} priority className="intro-logo-img" />
           </div>
           <div className="intro-brand-title">LabLink Nexus</div>
           <div className="intro-tagline">Discover. Allocate. Innovate.</div>
@@ -2361,7 +2367,7 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
         {/* Brand Lockup with Image Logo */}
         <div className="brand-lockup">
           <div className="brand-logo-wrap">
-            <img src="/logo.png" alt="LabLink Nexus Logo" className="brand-logo-img" />
+            <Image src="/logo.png" alt="LabLink Nexus Logo" width={36} height={36} priority className="brand-logo-img" />
           </div>
           <div>
             <div className="brand-title">LabLink<span className="brand-badge">NEXUS</span></div>
@@ -2466,7 +2472,7 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
       </aside>
 
       {/* Main Panel Content Area */}
-      <section className="main-panel">
+      <section className="main-panel" id="main-content">
         {/* Apple-style Topbar Header */}
         <header className="topbar">
           <div className="topbar-left">
@@ -3773,7 +3779,7 @@ export default function MultiStakeholderApp({ initialRole }: { initialRole?: Rol
           {/* Footer */}
           <footer className="footer">
             <div className="footer-brand">
-              <img src="/logo.png" alt="LabLink Logo" style={{ width: "20px", height: "20px", objectFit: "contain", borderRadius: "4px" }} />
+              <Image src="/logo.png" alt="LabLink Logo" width={20} height={20} style={{ objectFit: "contain", borderRadius: "4px" }} />
               LabLink Nexus Multi-Stakeholder Academic Platform
             </div>
             <span>Connected Roles: Student · Faculty · Technician · Lab Admin · HOD · College Management</span>
